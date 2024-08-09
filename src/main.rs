@@ -1,15 +1,19 @@
-use pieces::piece_type::{ChessPiece, ChessPieceType, ChessPieceColor};
-use pieces::piece_actions::PieceActions;
+use chessboard::chessboard::Chessboard;
+use chessboard::utilities::get_coordinates;
 
 mod pieces;
+mod chessboard;
 
 fn main() {
-    let king = ChessPiece {
-        piece: ChessPieceType::King,
-        color: ChessPieceColor::Black,
-        position: [0, 0],
-    };
+    let mut board = Chessboard::new();
 
-    king.move_piece();
-    king.capture_piece();
+    board.print_board("Bienvenido al juego de ajedrez".to_string());
+
+    loop {
+        let from = get_coordinates("Ingrese la posición de la pieza que desea mover (a h):");
+        let to = get_coordinates("Ingrese la posición hacia donde desea mover (a h):");
+
+        let message = board.move_piece(from, to);
+        board.print_board(message);
+    }
 }
