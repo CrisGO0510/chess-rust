@@ -29,7 +29,7 @@ pub fn rook_route_moves(current_position: [usize; 2], new_position: [usize; 2]) 
     let (nx, ny) = (new_position[0], new_position[1]);
 
     // Verificar si la nueva posición está dentro del tablero
-    if nx >= 8 || ny >= 8 {
+    if nx > 7 || ny > 7 {
         return route_moves;
     }
 
@@ -44,7 +44,7 @@ pub fn rook_route_moves(current_position: [usize; 2], new_position: [usize; 2]) 
         let start = if cy < ny { cy } else { ny };
         let end = if cy < ny { ny } else { cy };
 
-        for y in (start + 1)..end {
+        for y in (start + 1)..(end + 1) {
             route_moves.push([cx, y]);
         }
     } else if cy == ny {
@@ -52,7 +52,7 @@ pub fn rook_route_moves(current_position: [usize; 2], new_position: [usize; 2]) 
         let start = if cx < nx { cx } else { nx };
         let end = if cx < nx { nx } else { cx };
 
-        for x in (start + 1)..end {
+        for x in (start + 1)..(end + 1) {
             route_moves.push([x, cy]);
         }
     }
@@ -91,13 +91,10 @@ pub fn bishop_route_moves(
             y += dy;
         }
 
-        // Agregar la posición final si es diferente
-        if (x, y) != (nx, ny) {
-            route_moves.push([nx as usize, ny as usize]);
-        }
+        // Agregar la posición final
+        route_moves.push([nx as usize, ny as usize]);
     }
 
-    println!("alfil {:?}", route_moves);
     route_moves
 }
 
@@ -110,7 +107,7 @@ pub fn queen_route_moves(
     }
 
     if bishop_route_moves(current_position, new_position).len() > 0 {
-        return rook_route_moves(current_position, new_position);
+        return bishop_route_moves(current_position, new_position);
     }
 
     vec![]
@@ -217,14 +214,12 @@ pub fn pawn_route_capture(
     match color {
         ChessPieceColor::Black => {
             // Captura en diagonal
-            println!("nx: {}, cx: {}, ny: {}, cy: {}", nx, cx, ny, cy);
             if nx == cx + 1 && (ny == cy - 1 || ny == cy + 1) {
                 route_moves.push([nx as usize, ny as usize]);
             }
         }
         ChessPieceColor::White => {
             // Captura en diagonal
-            println!("nx: {}, cx: {}, ny: {}, cy: {}", nx, cx, ny, cy);
             if nx == cx - 1 && (ny == cy - 1 || ny == cy + 1) {
                 route_moves.push([nx as usize, ny as usize]);
             }

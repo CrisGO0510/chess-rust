@@ -5,6 +5,7 @@ use crate::pieces::piece_type::{ChessPiece, ChessPieceColor, ChessPieceType};
 use super::chessboard_validation::{is_check, validate_move};
 use super::player::Player;
 
+#[derive(Clone)]
 pub struct Chessboard {
     pub board: [[Option<ChessPiece>; 8]; 8],
     pub player_turn: ChessPieceColor,
@@ -50,12 +51,10 @@ impl Chessboard {
         Chessboard { board , player_turn: ChessPieceColor::White,
             player1: Player {
                 name: "Blanco".to_string(),
-                color: ChessPieceColor::White,
                 king_position: [7, 4],
             },
             player2: Player {
                 name: "Negro".to_string(),
-                color: ChessPieceColor::Black,
                 king_position: [0, 4],
             },
         }
@@ -120,42 +119,16 @@ impl Chessboard {
         let validation_result = validate_move(self, &from_position, &to_position, to);
 
         match validation_result {
-            Ok(_) => {
-                if let Some(mut piece) = from_position {
-                    // Realizamos el movimiento
-                    println!("Piece position {:?}", piece.position);
-                    piece.position = to;
-                    println!("Piece position {:?}", piece.position);
-                    self.board[to[0]][to[1]] = Some(piece);
-                    self.board[from[0]][from[1]] = None;
-                    println!(
-                        "a position {:?}",
-                        self.board[to[0]][to[1]].unwrap().position
-                    );
+            Ok(new_chessboard) => {
+                // Actualizamos el tablero con la nueva instancia
+                *self = new_chessboard;
 
-                    // Actualizamos la posición del rey
-                    if Some(piece.piece) == Some(ChessPieceType::King) {
-                        match piece.color {
-                            ChessPieceColor::White => self.player1.king_position = to,
-                            ChessPieceColor::Black => self.player2.king_position = to,
-                        }
-                    }
-
-                    // Cambiamos el turno del jugador
-                    self.player_turn = match self.player_turn {
-                        ChessPieceColor::White => ChessPieceColor::Black,
-                        ChessPieceColor::Black => ChessPieceColor::White,
-                    };
-
-                    // Determinamos si hay jaque
-                    if is_check(self) {
-                        return "¡Jaque!".to_string();
-                    }
-
-                    "Movimiento realizado.".to_string()
-                } else {
-                    "No hay pieza en la posición de origen.".to_string()
+                // Determinamos si hay jaque
+                if is_check(self, self.player_turn).is_some() {
+                    return "¡Jaque!".to_string();
                 }
+
+                "Movimiento realizado.".to_string()
             }
             Err(message) => message,
         }

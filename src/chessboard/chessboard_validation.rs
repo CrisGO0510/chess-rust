@@ -3,14 +3,14 @@ use crate::pieces::{
     piece_type::{ChessPiece, ChessPieceColor, ChessPieceType},
 };
 
-use super::chessboard::Chessboard;
+use super::{chessboard::Chessboard, utilities::new_chessboard_instance_after_move};
 
 pub fn validate_move(
     chessboard: &Chessboard,
     from_position: &Option<ChessPiece>,
     to_position: &Option<ChessPiece>,
     to: [usize; 2],
-) -> Result<(), String> {
+) -> Result<Chessboard, String> {
     match from_position {
         Some(from_piece) => {
             // Validamos si es el turno del jugador
@@ -26,7 +26,7 @@ pub fn validate_move(
                     }
 
                     // Validamos si la pieza es un rey
-                    if from_piece.piece == ChessPieceType::King {
+                    if to_piece.piece == ChessPieceType::King {
                         return Err("No puedes capturar al rey.".to_string());
                     }
 
@@ -65,55 +65,77 @@ pub fn validate_move(
                 }
             }
 
+            // Creamos una instancia temporal de chessboard
+            let temp_chessboard = new_chessboard_instance_after_move(chessboard, from_piece, to);
+
             // Validamos que no quede en jaque después del movimiento
-            if is_check(chessboard) {
+            if is_check(&temp_chessboard, chessboard.player_turn).is_some() {
                 return Err("No puedes dejar al rey en jaque.".to_string());
             }
 
-            Ok(())
+            Ok(temp_chessboard)
         }
         None => Err("No hay una pieza en la posición de origen.".to_string()),
     }
 }
 
-pub fn is_check(chessboard: &Chessboard) -> bool {
-    // let king_position = match chessboard.player_turn {
-    //     ChessPieceColor::White => chessboard.player1.king_position,
-    //     ChessPieceColor::Black => chessboard.player2.king_position,
-    // };
+pub fn is_check(chessboard: &Chessboard, player_color: ChessPieceColor) -> Option<[usize; 2]> {
+    let king_position = match player_color {
+        ChessPieceColor::White => chessboard.player1.king_position,
+        ChessPieceColor::Black => chessboard.player2.king_position,
+    };
 
-    // for i in 0..8 {
-    //     for j in 0..8 {
-    //         let from_position = chessboard.board[i][j];
+    for i in 0..8 {
+        for j in 0..8 {
+            if let Some(from_piece) = chessboard.board[i][j] {
+                // Si la pieza es del mismo color, continuamos
+                if from_piece.color == player_color {
+                    continue;
+                }
 
-    //         if let Some(from_piece) = from_position {
-    //             if from_piece.color != chessboard.player_turn {
-    //                 continue;
-    //             }
+                // Obtenemos los movimientos de la pieza para capturar al rey
+                let moves = from_piece.capture_piece(king_position);
 
-    //             let moves = from_piece.capture_piece(king_position);
+                // Validamos si la pieza puede realizar el movimiento
+                if moves.is_empty() {
+                    continue;
+                }
 
-    //             // Validamos si la pieza puede realizar el movimiento
-    //             if moves.is_empty() {
-    //                 continue;
-    //             }
+                // Variable para validar si hay una pieza en el camino
+                let mut piece_in_path: bool = false;
 
-    //             // Validamos si hay una pieza en el camino
-    //             for move_position in moves {
-    //                 if chessboard.board[move_position[0]][move_position[1]].is_some() {
-    //                     continue;
-    //                 }
-    //             }
+                // Validamos si hay una pieza en el camino, siendo el caso continuamos
+                for move_position in moves {
+                    if move_position == king_position {
+                        continue;
+                    }
 
-    //             println!(
-    //                 "¡El rey está en jaque! por la pieza {} en la posición {:?}",
-    //                 from_piece.to_char(),
-    //                 from_piece.position
-    //             );
-    //             return true;
-    //         }
-    //     }
-    // }
+                    if chessboard.board[move_position[0]][move_position[1]].is_some() {
+                        println!("Hay algo en el camino {:?}", move_position);
 
-    return false;
+                        piece_in_path = true;
+                        break;
+                    }
+                }
+
+                // Si hay una pieza en el camino, continuamos buscando
+                if piece_in_path {
+                    continue;
+                }
+
+                // En caso de no haber una pieza en el camino, notificamos que el rey está en jaque
+                println!(
+                    "¡El rey está en jaque! por la pieza {} en la posición {:?}",
+                    from_piece.to_char(),
+                    from_piece.position
+                );
+
+                // Retornamos la posición de la pieza que pone en jaque al rey
+                return Some(from_piece.position);
+            }
+        }
+    }
+
+    // En caso de que no haya jaque, retornamos un none
+    return None;
 }
