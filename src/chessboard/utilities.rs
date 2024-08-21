@@ -90,7 +90,7 @@ pub fn new_chessboard_instance_after_move(
         ChessPieceColor::Black => ChessPieceColor::White,
     };
     
-    temp_chessboard.print_board("copia".to_string());
+    // temp_chessboard.print_board("copia".to_string());
 
     temp_chessboard
 }
