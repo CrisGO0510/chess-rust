@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="Ea1tIVyp97EjMuHXbl2k" name="Page-1">
-        <mxGraphModel dx="422" dy="689" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="738" dy="825" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -63,7 +63,7 @@
                         <mxPoint x="914.8200000000002" y="930" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="sE5au4GL2n3erL41e8XW-32" value="!from_piece.capture_piece&lt;div&gt;(attacker_position).isEmpty()&lt;/div&gt;" style="shape=rhombus;html=1;dashed=0;whiteSpace=wrap;perimeter=rhombusPerimeter;" parent="1" vertex="1">
+                <mxCell id="sE5au4GL2n3erL41e8XW-32" value="from_piece.capture_piece&lt;div&gt;(attacker_position).&lt;/div&gt;&lt;span style=&quot;color: rgb(0, 204, 0);&quot;&gt;existe?&lt;/span&gt;" style="shape=rhombus;html=1;dashed=0;whiteSpace=wrap;perimeter=rhombusPerimeter;" parent="1" vertex="1">
                     <mxGeometry x="602.1800000000001" y="667" width="175.75" height="90" as="geometry"/>
                 </mxCell>
                 <mxCell id="sE5au4GL2n3erL41e8XW-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="sE5au4GL2n3erL41e8XW-37" target="sE5au4GL2n3erL41e8XW-43" edge="1">

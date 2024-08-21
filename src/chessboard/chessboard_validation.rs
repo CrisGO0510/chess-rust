@@ -203,7 +203,26 @@ pub fn is_checkmate(
                 }
 
                 // Si no se puede capturar a la pieza atacante, validamos si la pieza puede interponerse
-                
+                for move_position in attack_route.iter() {
+                    let moves = from_piece.move_piece(*move_position);
+
+                    if !moves.is_empty() {
+                        // Validamos si hay una pieza en el camino
+                        if validate_piece_in_path(chessboard, moves, *move_position) {
+                            continue;
+                        }
+
+                        // Creamos una instancia temporal de chessboard, para analizar si el rey sigue en jaque después de interponerse
+                        let temp_chessboard =
+                            new_chessboard_instance_after_move(chessboard, &from_piece, *move_position);
+
+                        // Si no hay jaque después de interponerse, retornamos false
+                        if is_check(&temp_chessboard, player_color).is_none() {
+                            return false;
+                        }
+                    }
+
+                }
             }
         }
     }
