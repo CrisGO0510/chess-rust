@@ -143,6 +143,8 @@ pub fn is_checkmate(
         ChessPieceColor::Black => chessboard.player2.king_position,
     };
 
+    println!("{:?} {:?}", player_color, attacker_position);
+
     // Obtenemos la información de la pieza que pone en jaque al rey
     let attacking_piece = chessboard.board[attacker_position[0]][attacker_position[1]].unwrap();
     let attack_route = attacking_piece.capture_piece(king_position);
@@ -162,6 +164,7 @@ pub fn is_checkmate(
             new_chessboard_instance_after_move(chessboard, &attacking_piece, move_position);
 
         if is_check(&temp_chessboard, player_color).is_none() {
+            println!("RETORNO FALSO EN MOVE KING");
             return false;
         }
     }
@@ -170,7 +173,7 @@ pub fn is_checkmate(
     for i in 0..8 {
         for j in 0..8 {
             if let Some(from_piece) = chessboard.board[i][j] {
-                // Si la pieza es del mismo color, continuamos
+                // Si la pieza no es del mismo color, continuamos
                 if from_piece.color != player_color {
                     continue;
                 }
@@ -182,6 +185,8 @@ pub fn is_checkmate(
 
                 // Validamos si la pieza puede capturar a la pieza atacante
                 let moves = from_piece.capture_piece(attacker_position);
+
+                println!("Ficha analizada actual {:?}", from_piece.piece);
 
                 if !moves.is_empty() {
                     // Validamos si hay una pieza en el camino
@@ -198,6 +203,7 @@ pub fn is_checkmate(
 
                     // Si no hay jaque después de capturar la pieza atacante, retornamos false
                     if is_check(&temp_chessboard, player_color).is_none() {
+                        println!("RETORNO FALSO EN CAPTURE.PIECE");
                         return false;
                     }
                 }
@@ -205,6 +211,8 @@ pub fn is_checkmate(
                 // Si no se puede capturar a la pieza atacante, validamos si la pieza puede interponerse
                 for move_position in attack_route.iter() {
                     let moves = from_piece.move_piece(*move_position);
+
+                    println!("Movimiento para interrumpir jaque {:?}", moves);
 
                     if !moves.is_empty() {
                         // Validamos si hay una pieza en el camino
@@ -218,6 +226,7 @@ pub fn is_checkmate(
 
                         // Si no hay jaque después de interponerse, retornamos false
                         if is_check(&temp_chessboard, player_color).is_none() {
+                            println!("RETORNO FALSO EN MOVE.PIECE");
                             return false;
                         }
                     }

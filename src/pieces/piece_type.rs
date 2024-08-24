@@ -1,6 +1,6 @@
 use super::colors;
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum ChessPieceType {
     King,
     Rook,
@@ -10,12 +10,12 @@ pub enum ChessPieceType {
     Pawn,
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum ChessPieceColor {
     White,
     Black,
   }
-  #[derive(Clone, Copy)]
+  #[derive(Clone, Copy, Debug)]
   pub struct ChessPiece {
     pub piece: ChessPieceType,
     pub color: ChessPieceColor,

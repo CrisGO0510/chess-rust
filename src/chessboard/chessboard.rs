@@ -2,7 +2,7 @@ use crate::chessboard::utilities::clear_console;
 use crate::pieces::colors;
 use crate::pieces::piece_type::{ChessPiece, ChessPieceColor, ChessPieceType};
 
-use super::chessboard_validation::{is_check, validate_move};
+use super::chessboard_validation::{is_check, is_checkmate, validate_move};
 use super::player::Player;
 
 #[derive(Clone)]
@@ -124,7 +124,12 @@ impl Chessboard {
                 *self = new_chessboard;
 
                 // Determinamos si hay jaque
-                if is_check(self, self.player_turn).is_some() {
+                if let Some(attacker_position) = is_check(self, self.player_turn) {
+                    // Determinamos si el jaque es jaque mate
+                    if is_checkmate(self, self.player_turn, attacker_position){
+                        return "¡Jaque Mate!".to_string();
+                    }
+
                     return "¡Jaque!".to_string();
                 }
 
