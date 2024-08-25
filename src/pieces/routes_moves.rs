@@ -44,7 +44,12 @@ pub fn rook_route_moves(current_position: [usize; 2], new_position: [usize; 2]) 
         let start = if cy < ny { cy } else { ny };
         let end = if cy < ny { ny } else { cy };
 
-        for y in (start + 1)..(end + 1) {
+        for y in start..(end + 1) {
+            // Ignoramos la posición actual
+            if y == cy {
+                continue;
+            }
+
             route_moves.push([cx, y]);
         }
     } else if cy == ny {
@@ -52,7 +57,12 @@ pub fn rook_route_moves(current_position: [usize; 2], new_position: [usize; 2]) 
         let start = if cx < nx { cx } else { nx };
         let end = if cx < nx { nx } else { cx };
 
-        for x in (start + 1)..(end + 1) {
+        for x in start..(end + 1) {
+            // Ignoramos la posición actual
+            if x == cx {
+                continue;
+            }
+
             route_moves.push([x, cy]);
         }
     }

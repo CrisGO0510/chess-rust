@@ -42,72 +42,60 @@ trait PawnActions {
 
 impl KingActions for ChessPiece {
     fn king_move(&self, new_position: [usize; 2]) -> Vec<[usize; 2]> {
-        println!("Moviendo el Rey a la nueva posición {:?}", new_position);
         king_route_moves(self.position, new_position)
     }
 
     fn king_capture(&self, new_position: [usize; 2]) -> Vec<[usize; 2]> {
-        println!("Capturando con el Rey.");
         king_route_moves(self.position, new_position)
     }
 }
 
 impl RookActions for ChessPiece {
     fn rook_move(&self, new_position: [usize; 2]) -> Vec<[usize; 2]> {
-        println!("Moviendo la Torre a la nueva posición {:?}", new_position);
         rook_route_moves(self.position, new_position)
     }
 
     fn rook_capture(&self, new_position: [usize; 2]) -> Vec<[usize; 2]> {
-        println!("Capturando con la Torre.");
         rook_route_moves(self.position, new_position)
     }
 }
 
 impl BishopActions for ChessPiece {
     fn bishop_move(&self, new_position: [usize; 2]) -> Vec<[usize; 2]> {
-        println!("Moviendo el Alfil a la nueva posición {:?}", new_position);
         bishop_route_moves(self.position, new_position)
     }
 
     fn bishop_capture(&self, new_position: [usize; 2]) -> Vec<[usize; 2]> {
-        println!("Capturando con el Alfil.");
         bishop_route_moves(self.position, new_position)
     }
 }
 
 impl QueenActions for ChessPiece {
     fn queen_move(&self, new_position: [usize; 2]) -> Vec<[usize; 2]> {
-        println!("Moviendo la Reina a la nueva posición {:?}", new_position);
         queen_route_moves(self.position, new_position)
     }
 
     fn queen_capture(&self, new_position: [usize; 2]) -> Vec<[usize; 2]> {
-        println!("Capturando con la Reina.");
         queen_route_moves(self.position, new_position)
     }
 }
 
 impl KnightActions for ChessPiece {
     fn knight_move(&self, new_position: [usize; 2]) -> Vec<[usize; 2]> {
-        println!("Moviendo el Caballo a la nueva posición {:?}", new_position);
         knight_route_moves(self.position, new_position)
     }
 
     fn knight_capture(&self, new_position: [usize; 2]) -> Vec<[usize; 2]> {
-        println!("Capturando con el Caballo.");
         knight_route_moves(self.position, new_position)
     }
 }
 
 impl PawnActions for ChessPiece {
     fn pawn_move(&self, new_position: [usize; 2]) -> Vec<[usize; 2]> {
-        println!("Moviendo el Peón a la nueva posición {:?}", new_position);
         pawn_route_move(self.position, new_position, self.color)
     }
 
     fn pawn_capture(&self, new_position: [usize; 2]) -> Vec<[usize; 2]> {
-        println!("Capturando con el Peón.");
         pawn_route_capture(self.position, new_position ,self.color)
     }
 }

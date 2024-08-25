@@ -27,7 +27,7 @@ impl Chessboard {
         board[0][5] = Some(ChessPiece { piece: ChessPieceType::Bishop, color: ChessPieceColor::Black, position: [0, 5] , before_position: None});
         board[0][6] = Some(ChessPiece { piece: ChessPieceType::Knight, color: ChessPieceColor::Black, position: [0, 6] , before_position: None});
         board[0][7] = Some(ChessPiece { piece: ChessPieceType::Rook, color: ChessPieceColor::Black, position: [0, 7] , before_position: None});
-
+        
         // Peones negros
         for col in 0..8 {
             board[1][col] = Some(ChessPiece { piece: ChessPieceType::Pawn, color: ChessPieceColor::Black, position: [1, col] , before_position: None});
@@ -39,10 +39,10 @@ impl Chessboard {
         board[7][2] = Some(ChessPiece { piece: ChessPieceType::Bishop, color: ChessPieceColor::White, position: [7, 2] , before_position: None});
         board[7][3] = Some(ChessPiece { piece: ChessPieceType::Queen, color: ChessPieceColor::White, position: [7, 3] , before_position: None});
         board[7][4] = Some(ChessPiece { piece: ChessPieceType::King, color: ChessPieceColor::White, position: [7, 4] , before_position: None});
-        // board[7][5] = Some(ChessPiece { piece: ChessPieceType::Bishop, color: ChessPieceColor::White, position: [7, 5] , before_position: None});
-        // board[7][6] = Some(ChessPiece { piece: ChessPieceType::Knight, color: ChessPieceColor::White, position: [7, 6] , before_position: None});
+        board[7][5] = Some(ChessPiece { piece: ChessPieceType::Bishop, color: ChessPieceColor::White, position: [7, 5] , before_position: None});
+        board[7][6] = Some(ChessPiece { piece: ChessPieceType::Knight, color: ChessPieceColor::White, position: [7, 6] , before_position: None});
         board[7][7] = Some(ChessPiece { piece: ChessPieceType::Rook, color: ChessPieceColor::White, position: [7, 7] , before_position: None});
-
+        
         // Peones blancos
         for col in 0..8 {
             board[6][col] = Some(ChessPiece { piece: ChessPieceType::Pawn, color: ChessPieceColor::White, position: [6, col] , before_position: None});
@@ -76,7 +76,7 @@ impl Chessboard {
             }
         };
 
-        // clear_console();
+        clear_console();
 
         let mut row_index = 8;
         println!("      a   b   c   d   e   f   g   h");

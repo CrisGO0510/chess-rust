@@ -13,7 +13,7 @@ use crate::pieces::piece_type::{ChessPiece, ChessPieceColor, ChessPieceType, Mes
  # Returns
  Retorna un `Result` que puede ser:
  - `Ok(Chessboard)`: Un nuevo tablero de ajedrez después de realizar el movimiento si es válido.
- - `Err(String)`: Un mensaje de error en caso de que el movimiento no sea válido, explicando la razón del error.
+ - `Err(Message)`: Un mensaje de error en caso de que el movimiento no sea válido, explicando la razón del error.
 */
 pub fn validate_move(
     chessboard: &Chessboard,
@@ -123,12 +123,12 @@ pub fn is_check(chessboard: &Chessboard, player_color: ChessPieceColor) -> Optio
                     continue;
                 }
 
-                // En caso de no haber una pieza en el camino, notificamos que el rey está en jaque
-                println!(
-                    "¡El rey está en jaque! por la pieza {} en la posición {:?}",
-                    from_piece.to_char(),
-                    from_piece.position
-                );
+                // // En caso de no haber una pieza en el camino, notificamos que el rey está en jaque
+                // println!(
+                //     "¡El rey está en jaque! por la pieza {} en la posición {:?}",
+                //     from_piece.to_char(),
+                //     from_piece.position
+                // );
 
                 // Retornamos la posición de la pieza que pone en jaque al rey
                 return Some(from_piece.position);
@@ -140,6 +140,17 @@ pub fn is_check(chessboard: &Chessboard, player_color: ChessPieceColor) -> Optio
     return None;
 }
 
+/**
+ Valida si hay jaque mate.
+ # Arguments
+ * `chessboard` - Una referencia al tablero de ajedrez actual.
+ * `player_color` - El color del usuario al cual vamos a analizar el jaquemate
+ * `attacker_position` - La posición destino de la ficha que esta amaenazando al rey.
+ # Returns
+ Retorna un `bool` que puede ser:
+ - `True`: Dando a entender que hay jaque mate.
+ - `False`: Dando a entender que no hay jaque mate.
+*/
 pub fn is_checkmate(
     chessboard: &Chessboard,
     player_color: ChessPieceColor,
@@ -160,8 +171,7 @@ pub fn is_checkmate(
     // Iteramos cada uno de los movimientos del rey
     for move_position in king_moves {
         // Validamos si el rey puede moverse a una posición segura
-
-        if !attack_route.contains(&move_position) {
+        if !attack_route.contains(&move_position) && (move_position != attacker_position) {
             continue;
         }
 
@@ -264,7 +274,17 @@ fn validate_piece_in_path(chessboard: &Chessboard, moves: Vec<[usize; 2]>, to: [
     return false;
 }
 
-pub fn castling_validate(chessboard: &Chessboard, to: [usize; 2]) -> Result<Chessboard, Message> {
+/**
+ Valida si se puede realizar el enroque.
+ # Arguments
+ * `chessboard` - Una referencia al tablero de ajedrez actual.
+ * `to` - La posición destino del movimiento del rey`.
+ # Returns
+ Retorna un `Result` que puede ser:
+ - `Ok(Chessboard)`: Un nuevo tablero de ajedrez después de realizar el movimiento de enroque si es válido.
+ - `Err(Message)`: Un mensaje de error en caso de que el movimiento no sea válido, explicando la razón del error.
+*/
+fn castling_validate(chessboard: &Chessboard, to: [usize; 2]) -> Result<Chessboard, Message> {
     // Obtenemos la posición del rey
     let king_position = match chessboard.player_turn {
         ChessPieceColor::White => chessboard.player1.king_position,
@@ -273,7 +293,6 @@ pub fn castling_validate(chessboard: &Chessboard, to: [usize; 2]) -> Result<Ches
 
     // Validamos si el rey esta a 2 posiciones de la torre
     if (king_position[1] as i32 - to[1] as i32).abs() != 2 {
-        println!("Validamos si el rey esta a 2 posiciones de la torre");
         return Err(Message::CannotCastle);
     }
 
@@ -281,7 +300,6 @@ pub fn castling_validate(chessboard: &Chessboard, to: [usize; 2]) -> Result<Ches
     let king_piece = chessboard.board[king_position[0]][king_position[1]].unwrap();
 
     if king_piece.before_position.is_some() {
-        println!("Validamos si el rey se ha movido");
         return Err(Message::CannotCastle);
     }
 
@@ -306,21 +324,16 @@ pub fn castling_validate(chessboard: &Chessboard, to: [usize; 2]) -> Result<Ches
     // Validamos que la torre exista y no se haya movido
     if let Some(rook_piece) = chessboard.board[rook_position[0]][rook_position[1]] {
         if rook_piece.before_position.is_some() {
-            println!("Validamos que la torre no se haya movido");
             return Err(Message::CannotCastle);
         }
     } else {
-        println!("Validamos que la torre exista");
         return Err(Message::CannotCastle);
     }
 
     // Validamos que no hayan fichas entre el rey y la torre
     for y in (king_position[1] + 1)..rook_position[1] {
         match chessboard.board[king_position[0]][y] {
-            Some(piece) => {
-                println!("Validamos que no hayan fichas entre el rey y la torre {:?}", piece.position);
-                return Err(Message::CannotCastle);
-            }
+            Some(_) => return Err(Message::CannotCastle),
             None => continue,
         };
     }
