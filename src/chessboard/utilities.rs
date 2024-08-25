@@ -72,6 +72,7 @@ pub fn new_chessboard_instance_after_move(
     let from = temp_piece.position;
 
     // Realizamos el movimiento
+    temp_piece.before_position = Some(from);
     temp_piece.position = to;
     temp_chessboard.board[to[0]][to[1]] = Some(temp_piece);
     temp_chessboard.board[from[0]][from[1]] = None;
@@ -89,7 +90,7 @@ pub fn new_chessboard_instance_after_move(
         ChessPieceColor::White => ChessPieceColor::Black,
         ChessPieceColor::Black => ChessPieceColor::White,
     };
-    
+
     // temp_chessboard.print_board("copia".to_string());
 
     temp_chessboard

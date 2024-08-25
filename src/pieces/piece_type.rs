@@ -1,6 +1,6 @@
 use super::colors;
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum ChessPieceType {
     King,
     Rook,
@@ -10,16 +10,51 @@ pub enum ChessPieceType {
     Pawn,
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(PartialEq)]
+pub enum Message {
+    Success,
+    Check,
+    CheckMate,
+    // Validate
+    PieceNotYourColor,
+    CannotMoveToOccupiedSameColor,
+    CannotCaptureKing,
+    CannotMovePieceToPosition,
+    PieceBlockingTheWay,
+    CannotLeaveKingInCheck,
+    NoPieceInStartingPosition,
+    CannotCastle
+}
+
+impl Message {
+    pub fn get_message(&self) -> String {
+        match self {
+            Message::Success => "Movimiento realizado".to_string(),
+            Message::Check => "Jaque!".to_string(),
+            Message::CheckMate => "Jaque Mate".to_string(),
+            Message::PieceNotYourColor => "La pieza no es de tu color".to_string(),
+            Message::CannotMoveToOccupiedSameColor => "No puedes mover una pieza a una posición ocupada por una pieza del mismo color".to_string(),
+            Message::CannotCaptureKing => "No puedes capturar al rey".to_string(),
+            Message::CannotMovePieceToPosition => "No puedes mover la pieza a esa posición".to_string(),
+            Message::PieceBlockingTheWay => "Hay una pieza en el camino".to_string(),
+            Message::CannotLeaveKingInCheck => "No puedes dejar al rey en jaque".to_string(),
+            Message::NoPieceInStartingPosition => "No hay una pieza en la posición de inicio".to_string(),
+            Message::CannotCastle => "No puedes realizar enroque".to_string(),
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq)]
 pub enum ChessPieceColor {
     White,
     Black,
   }
-  #[derive(Clone, Copy, Debug)]
+  #[derive(Clone, Copy)]
   pub struct ChessPiece {
     pub piece: ChessPieceType,
     pub color: ChessPieceColor,
     pub position: [usize; 2],
+    pub before_position: Option<[usize; 2]>,
 }
 
 impl ChessPiece {

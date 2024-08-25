@@ -1,8 +1,8 @@
+use super::{chessboard::Chessboard, utilities::new_chessboard_instance_after_move};
 use crate::pieces::allowed_moves::king_allowed_moves;
 use crate::pieces::piece_actions::PieceActions;
-use crate::pieces::piece_type::{ChessPiece, ChessPieceColor, ChessPieceType};
+use crate::pieces::piece_type::{ChessPiece, ChessPieceColor, ChessPieceType, Message};
 
-use super::{chessboard::Chessboard, utilities::new_chessboard_instance_after_move};
 /**
  Valida si un movimiento es legal en el tablero de ajedrez
  # Arguments
@@ -20,36 +20,43 @@ pub fn validate_move(
     from_position: &Option<ChessPiece>,
     to_position: &Option<ChessPiece>,
     to: [usize; 2],
-) -> Result<Chessboard, String> {
+) -> Result<Chessboard, Message> {
     match from_position {
         Some(from_piece) => {
             // Validamos si es el turno del jugador
             if from_piece.color != chessboard.player_turn {
-                return Err("La pieza no es de tu color.".to_string());
+                return Err(Message::PieceNotYourColor);
+            }
+
+            // Validamos enroque
+            if from_piece.piece == ChessPieceType::King
+                && (from_piece.position[1] as i32 - to[1] as i32).abs() == 2
+            {
+                return castling_validate(chessboard, to);
             }
 
             match to_position {
                 Some(to_piece) => {
                     // Validamos si la pieza es del mismo color
                     if from_piece.color == to_piece.color {
-                        return Err("No puedes mover una pieza a una posición ocupada por una pieza del mismo color.".to_string());
+                        return Err(Message::CannotMoveToOccupiedSameColor);
                     }
 
                     // Validamos si la pieza es un rey
                     if to_piece.piece == ChessPieceType::King {
-                        return Err("No puedes capturar al rey.".to_string());
+                        return Err(Message::CannotCaptureKing);
                     }
 
                     let moves = from_piece.capture_piece(to);
 
                     // Validamos si la pieza puede realizar el movimiento
                     if moves.is_empty() {
-                        return Err("No puedes mover la pieza a esa posición.".to_string());
+                        return Err(Message::CannotMovePieceToPosition);
                     }
 
                     // Validamos si hay una pieza en el camino
                     if validate_piece_in_path(chessboard, moves, to) {
-                        return Err("Hay una pieza en el camino.".to_string());
+                        return Err(Message::PieceBlockingTheWay);
                     }
                 }
                 None => {
@@ -57,12 +64,12 @@ pub fn validate_move(
 
                     // Validamos si la pieza puede realizar el movimiento
                     if moves.is_empty() {
-                        return Err("No puedes mover la pieza a esa posición.".to_string());
+                        return Err(Message::CannotMovePieceToPosition);
                     }
 
                     // Validamos si hay una pieza en el camino
                     if validate_piece_in_path(chessboard, moves, to) {
-                        return Err("Hay una pieza en el camino.".to_string());
+                        return Err(Message::PieceBlockingTheWay);
                     }
                 }
             }
@@ -72,12 +79,12 @@ pub fn validate_move(
 
             // Validamos que no quede en jaque después del movimiento
             if is_check(&temp_chessboard, chessboard.player_turn).is_some() {
-                return Err("No puedes dejar al rey en jaque.".to_string());
+                return Err(Message::CannotLeaveKingInCheck);
             }
 
             Ok(temp_chessboard)
         }
-        None => Err("No hay una pieza en la posición de origen.".to_string()),
+        None => Err(Message::NoPieceInStartingPosition),
     }
 }
 
@@ -143,8 +150,6 @@ pub fn is_checkmate(
         ChessPieceColor::Black => chessboard.player2.king_position,
     };
 
-    println!("{:?} {:?}", player_color, attacker_position);
-
     // Obtenemos la información de la pieza que pone en jaque al rey
     let attacking_piece = chessboard.board[attacker_position[0]][attacker_position[1]].unwrap();
     let attack_route = attacking_piece.capture_piece(king_position);
@@ -155,7 +160,8 @@ pub fn is_checkmate(
     // Iteramos cada uno de los movimientos del rey
     for move_position in king_moves {
         // Validamos si el rey puede moverse a una posición segura
-        if attack_route.contains(&move_position) {
+
+        if !attack_route.contains(&move_position) {
             continue;
         }
 
@@ -164,7 +170,6 @@ pub fn is_checkmate(
             new_chessboard_instance_after_move(chessboard, &attacking_piece, move_position);
 
         if is_check(&temp_chessboard, player_color).is_none() {
-            println!("RETORNO FALSO EN MOVE KING");
             return false;
         }
     }
@@ -186,8 +191,6 @@ pub fn is_checkmate(
                 // Validamos si la pieza puede capturar a la pieza atacante
                 let moves = from_piece.capture_piece(attacker_position);
 
-                println!("Ficha analizada actual {:?}", from_piece.piece);
-
                 if !moves.is_empty() {
                     // Validamos si hay una pieza en el camino
                     if validate_piece_in_path(chessboard, moves, attacker_position) {
@@ -203,7 +206,6 @@ pub fn is_checkmate(
 
                     // Si no hay jaque después de capturar la pieza atacante, retornamos false
                     if is_check(&temp_chessboard, player_color).is_none() {
-                        println!("RETORNO FALSO EN CAPTURE.PIECE");
                         return false;
                     }
                 }
@@ -212,8 +214,6 @@ pub fn is_checkmate(
                 for move_position in attack_route.iter() {
                     let moves = from_piece.move_piece(*move_position);
 
-                    println!("Movimiento para interrumpir jaque {:?}", moves);
-
                     if !moves.is_empty() {
                         // Validamos si hay una pieza en el camino
                         if validate_piece_in_path(chessboard, moves, *move_position) {
@@ -221,16 +221,17 @@ pub fn is_checkmate(
                         }
 
                         // Creamos una instancia temporal de chessboard, para analizar si el rey sigue en jaque después de interponerse
-                        let temp_chessboard =
-                            new_chessboard_instance_after_move(chessboard, &from_piece, *move_position);
+                        let temp_chessboard = new_chessboard_instance_after_move(
+                            chessboard,
+                            &from_piece,
+                            *move_position,
+                        );
 
                         // Si no hay jaque después de interponerse, retornamos false
                         if is_check(&temp_chessboard, player_color).is_none() {
-                            println!("RETORNO FALSO EN MOVE.PIECE");
                             return false;
                         }
                     }
-
                 }
             }
         }
@@ -261,4 +262,102 @@ fn validate_piece_in_path(chessboard: &Chessboard, moves: Vec<[usize; 2]>, to: [
     }
 
     return false;
+}
+
+pub fn castling_validate(chessboard: &Chessboard, to: [usize; 2]) -> Result<Chessboard, Message> {
+    // Obtenemos la posición del rey
+    let king_position = match chessboard.player_turn {
+        ChessPieceColor::White => chessboard.player1.king_position,
+        ChessPieceColor::Black => chessboard.player2.king_position,
+    };
+
+    // Validamos si el rey esta a 2 posiciones de la torre
+    if (king_position[1] as i32 - to[1] as i32).abs() != 2 {
+        println!("Validamos si el rey esta a 2 posiciones de la torre");
+        return Err(Message::CannotCastle);
+    }
+
+    // Validamos si el rey se ha movido
+    let king_piece = chessboard.board[king_position[0]][king_position[1]].unwrap();
+
+    if king_piece.before_position.is_some() {
+        println!("Validamos si el rey se ha movido");
+        return Err(Message::CannotCastle);
+    }
+
+    // Obtenemos la posición de la torre
+    let rook_position = match chessboard.player_turn {
+        ChessPieceColor::White => {
+            if to == [7, 6] {
+                [7, 7]
+            } else {
+                [7, 0]
+            }
+        }
+        ChessPieceColor::Black => {
+            if to == [0, 6] {
+                [0, 7]
+            } else {
+                [0, 0]
+            }
+        }
+    };
+
+    // Validamos que la torre exista y no se haya movido
+    if let Some(rook_piece) = chessboard.board[rook_position[0]][rook_position[1]] {
+        if rook_piece.before_position.is_some() {
+            println!("Validamos que la torre no se haya movido");
+            return Err(Message::CannotCastle);
+        }
+    } else {
+        println!("Validamos que la torre exista");
+        return Err(Message::CannotCastle);
+    }
+
+    // Validamos que no hayan fichas entre el rey y la torre
+    for y in (king_position[1] + 1)..rook_position[1] {
+        match chessboard.board[king_position[0]][y] {
+            Some(piece) => {
+                println!("Validamos que no hayan fichas entre el rey y la torre {:?}", piece.position);
+                return Err(Message::CannotCastle);
+            }
+            None => continue,
+        };
+    }
+
+    // Creamos una instancia temporal de chessboard y movemos el rey
+    let mut temp_chessboard = new_chessboard_instance_after_move(chessboard, &king_piece, to);
+
+    // Obtenemos la posición final de la torre después del enroque
+    let rook_position_to = match chessboard.player_turn {
+        ChessPieceColor::White => {
+            if to == [7, 6] {
+                [7, 5]
+            } else {
+                [7, 3]
+            }
+        }
+        ChessPieceColor::Black => {
+            if to == [0, 6] {
+                [0, 5]
+            } else {
+                [0, 3]
+            }
+        }
+    };
+
+    // Movemos la torre
+    temp_chessboard = new_chessboard_instance_after_move(
+        &temp_chessboard,
+        &chessboard.board[rook_position[0]][rook_position[1]].unwrap(),
+        rook_position_to,
+    );
+
+    // Cambiamos de turno
+    temp_chessboard.player_turn = match temp_chessboard.player_turn {
+        ChessPieceColor::White => ChessPieceColor::Black,
+        ChessPieceColor::Black => ChessPieceColor::White,
+    };
+
+    return Ok(temp_chessboard);
 }

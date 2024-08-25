@@ -1,6 +1,6 @@
 use crate::chessboard::utilities::clear_console;
 use crate::pieces::colors;
-use crate::pieces::piece_type::{ChessPiece, ChessPieceColor, ChessPieceType};
+use crate::pieces::piece_type::{ChessPiece, ChessPieceColor, ChessPieceType, Message};
 
 use super::chessboard_validation::{is_check, is_checkmate, validate_move};
 use super::player::Player;
@@ -19,33 +19,33 @@ impl Chessboard {
         let mut board: [[Option<ChessPiece>; 8]; 8] = [[None; 8]; 8];
 
         // Piezas negros
-        board[0][0] = Some(ChessPiece { piece: ChessPieceType::Rook, color: ChessPieceColor::Black, position: [0, 0] });
-        board[0][1] = Some(ChessPiece { piece: ChessPieceType::Knight, color: ChessPieceColor::Black, position: [0, 1] });
-        board[0][2] = Some(ChessPiece { piece: ChessPieceType::Bishop, color: ChessPieceColor::Black, position: [0, 2] });
-        board[0][3] = Some(ChessPiece { piece: ChessPieceType::Queen, color: ChessPieceColor::Black, position: [0, 3] });
-        board[0][4] = Some(ChessPiece { piece: ChessPieceType::King, color: ChessPieceColor::Black, position: [0, 4] });
-        board[0][5] = Some(ChessPiece { piece: ChessPieceType::Bishop, color: ChessPieceColor::Black, position: [0, 5] });
-        board[0][6] = Some(ChessPiece { piece: ChessPieceType::Knight, color: ChessPieceColor::Black, position: [0, 6] });
-        board[0][7] = Some(ChessPiece { piece: ChessPieceType::Rook, color: ChessPieceColor::Black, position: [0, 7] });
+        board[0][0] = Some(ChessPiece { piece: ChessPieceType::Rook, color: ChessPieceColor::Black, position: [0, 0] , before_position: None});
+        board[0][1] = Some(ChessPiece { piece: ChessPieceType::Knight, color: ChessPieceColor::Black, position: [0, 1] , before_position: None});
+        board[0][2] = Some(ChessPiece { piece: ChessPieceType::Bishop, color: ChessPieceColor::Black, position: [0, 2] , before_position: None});
+        board[0][3] = Some(ChessPiece { piece: ChessPieceType::Queen, color: ChessPieceColor::Black, position: [0, 3] , before_position: None});
+        board[0][4] = Some(ChessPiece { piece: ChessPieceType::King, color: ChessPieceColor::Black, position: [0, 4] , before_position: None});
+        board[0][5] = Some(ChessPiece { piece: ChessPieceType::Bishop, color: ChessPieceColor::Black, position: [0, 5] , before_position: None});
+        board[0][6] = Some(ChessPiece { piece: ChessPieceType::Knight, color: ChessPieceColor::Black, position: [0, 6] , before_position: None});
+        board[0][7] = Some(ChessPiece { piece: ChessPieceType::Rook, color: ChessPieceColor::Black, position: [0, 7] , before_position: None});
 
         // Peones negros
         for col in 0..8 {
-            board[1][col] = Some(ChessPiece { piece: ChessPieceType::Pawn, color: ChessPieceColor::Black, position: [1, col] });
+            board[1][col] = Some(ChessPiece { piece: ChessPieceType::Pawn, color: ChessPieceColor::Black, position: [1, col] , before_position: None});
         }
 
         // Piezas blanca
-        board[7][0] = Some(ChessPiece { piece: ChessPieceType::Rook, color: ChessPieceColor::White, position: [7, 0] });
-        board[7][1] = Some(ChessPiece { piece: ChessPieceType::Knight, color: ChessPieceColor::White, position: [7, 1] });
-        board[7][2] = Some(ChessPiece { piece: ChessPieceType::Bishop, color: ChessPieceColor::White, position: [7, 2] });
-        board[7][3] = Some(ChessPiece { piece: ChessPieceType::Queen, color: ChessPieceColor::White, position: [7, 3] });
-        board[7][4] = Some(ChessPiece { piece: ChessPieceType::King, color: ChessPieceColor::White, position: [7, 4] });
-        board[7][5] = Some(ChessPiece { piece: ChessPieceType::Bishop, color: ChessPieceColor::White, position: [7, 5] });
-        board[7][6] = Some(ChessPiece { piece: ChessPieceType::Knight, color: ChessPieceColor::White, position: [7, 6] });
-        board[7][7] = Some(ChessPiece { piece: ChessPieceType::Rook, color: ChessPieceColor::White, position: [7, 7] });
+        board[7][0] = Some(ChessPiece { piece: ChessPieceType::Rook, color: ChessPieceColor::White, position: [7, 0] , before_position: None});
+        board[7][1] = Some(ChessPiece { piece: ChessPieceType::Knight, color: ChessPieceColor::White, position: [7, 1] , before_position: None});
+        board[7][2] = Some(ChessPiece { piece: ChessPieceType::Bishop, color: ChessPieceColor::White, position: [7, 2] , before_position: None});
+        board[7][3] = Some(ChessPiece { piece: ChessPieceType::Queen, color: ChessPieceColor::White, position: [7, 3] , before_position: None});
+        board[7][4] = Some(ChessPiece { piece: ChessPieceType::King, color: ChessPieceColor::White, position: [7, 4] , before_position: None});
+        // board[7][5] = Some(ChessPiece { piece: ChessPieceType::Bishop, color: ChessPieceColor::White, position: [7, 5] , before_position: None});
+        // board[7][6] = Some(ChessPiece { piece: ChessPieceType::Knight, color: ChessPieceColor::White, position: [7, 6] , before_position: None});
+        board[7][7] = Some(ChessPiece { piece: ChessPieceType::Rook, color: ChessPieceColor::White, position: [7, 7] , before_position: None});
 
         // Peones blancos
         for col in 0..8 {
-            board[6][col] = Some(ChessPiece { piece: ChessPieceType::Pawn, color: ChessPieceColor::White, position: [6, col] });
+            board[6][col] = Some(ChessPiece { piece: ChessPieceType::Pawn, color: ChessPieceColor::White, position: [6, col] , before_position: None});
         }
 
         Chessboard { board , player_turn: ChessPieceColor::White,
@@ -111,7 +111,7 @@ impl Chessboard {
         println!("    └───┴───┴───┴───┴───┴───┴───┴───┘");
     }
 
-    pub fn move_piece(&mut self, from: [usize; 2], to: [usize; 2]) -> String {
+    pub fn move_piece(&mut self, from: [usize; 2], to: [usize; 2]) -> Message {
         let from_position = self.board[from[0]][from[1]];
         let to_position = self.board[to[0]][to[1]];
 
@@ -126,14 +126,14 @@ impl Chessboard {
                 // Determinamos si hay jaque
                 if let Some(attacker_position) = is_check(self, self.player_turn) {
                     // Determinamos si el jaque es jaque mate
-                    if is_checkmate(self, self.player_turn, attacker_position){
-                        return "¡Jaque Mate!".to_string();
+                    if is_checkmate(self, self.player_turn, attacker_position) {
+                        return Message::CheckMate;
                     }
 
-                    return "¡Jaque!".to_string();
+                    return Message::Check;
                 }
 
-                "Movimiento realizado.".to_string()
+                Message::Success
             }
             Err(message) => message,
         }

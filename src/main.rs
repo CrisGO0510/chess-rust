@@ -1,5 +1,6 @@
 use chessboard::chessboard::Chessboard;
 use chessboard::utilities::get_coordinates;
+use pieces::piece_type::Message;
 
 mod pieces;
 mod chessboard;
@@ -14,6 +15,13 @@ fn main() {
         let to = get_coordinates("Ingrese la posición hacia donde desea mover (a h):");
 
         let message = board.move_piece(from, to);
-        board.print_board(message);
+
+        board.print_board(message.get_message());
+
+        // Validamoss si es jaque mate
+        if message == Message::CheckMate {
+            println!("Juego terminado");
+            break;
+        }
     }
 }
