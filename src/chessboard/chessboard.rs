@@ -48,6 +48,12 @@ impl Chessboard {
             board[6][col] = Some(ChessPiece { piece: ChessPieceType::Pawn, color: ChessPieceColor::White, position: [6, col] , before_position: None});
         }
 
+
+        // board[2][3] = Some(ChessPiece { piece: ChessPieceType::Rook, color: ChessPieceColor::White, position: [2, 3] , before_position: None});
+        // board[3][2] = Some(ChessPiece { piece: ChessPieceType::Knight, color: ChessPieceColor::White, position: [3, 2] , before_position: None});
+        // board[3][4] = Some(ChessPiece { piece: ChessPieceType::Bishop, color: ChessPieceColor::White, position: [3, 4] , before_position: None});
+        // board[4][3] = Some(ChessPiece { piece: ChessPieceType::Bishop, color: ChessPieceColor::Black, position: [4, 3] , before_position: None});
+
         Chessboard { board , player_turn: ChessPieceColor::White,
             player1: Player {
                 name: "Blanco".to_string(),
@@ -76,7 +82,7 @@ impl Chessboard {
             }
         };
 
-        clear_console();
+        // clear_console();
 
         let mut row_index = 8;
         println!("      a   b   c   d   e   f   g   h");
@@ -111,12 +117,12 @@ impl Chessboard {
         println!("    └───┴───┴───┴───┴───┴───┴───┴───┘");
     }
 
-    pub fn move_piece(&mut self, from: [usize; 2], to: [usize; 2]) -> Message {
+    pub fn move_piece(&mut self, from: [usize; 2], to: [usize; 2], _is_computer: bool) -> Message {
         let from_position = self.board[from[0]][from[1]];
         let to_position = self.board[to[0]][to[1]];
 
         // Validamos el movimiento
-        let validation_result = validate_move(self, &from_position, &to_position, to);
+        let validation_result = validate_move(self, &from_position, &to_position, to, _is_computer);
 
         match validation_result {
             Ok(new_chessboard) => {
@@ -126,7 +132,7 @@ impl Chessboard {
                 // Determinamos si hay jaque
                 if let Some(attacker_position) = is_check(self, self.player_turn) {
                     // Determinamos si el jaque es jaque mate
-                    if is_checkmate(self, self.player_turn, attacker_position) {
+                    if is_checkmate(self, self.player_turn, attacker_position, _is_computer) {
                         return Message::CheckMate;
                     }
 

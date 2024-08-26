@@ -20,6 +20,7 @@ pub fn validate_move(
     from_position: &Option<ChessPiece>,
     to_position: &Option<ChessPiece>,
     to: [usize; 2],
+    _is_computer: bool,
 ) -> Result<Chessboard, Message> {
     match from_position {
         Some(from_piece) => {
@@ -38,6 +39,7 @@ pub fn validate_move(
             match to_position {
                 Some(to_piece) => {
                     // Validamos si la pieza es del mismo color
+
                     if from_piece.color == to_piece.color {
                         return Err(Message::CannotMoveToOccupiedSameColor);
                     }
@@ -75,7 +77,8 @@ pub fn validate_move(
             }
 
             // Creamos una instancia temporal de chessboard
-            let temp_chessboard = new_chessboard_instance_after_move(chessboard, from_piece, to);
+            let temp_chessboard =
+                new_chessboard_instance_after_move(chessboard, from_piece, to, _is_computer);
 
             // Validamos que no quede en jaque después del movimiento
             if is_check(&temp_chessboard, chessboard.player_turn).is_some() {
@@ -155,6 +158,7 @@ pub fn is_checkmate(
     chessboard: &Chessboard,
     player_color: ChessPieceColor,
     attacker_position: [usize; 2],
+    _is_computer: bool,
 ) -> bool {
     let king_position = match player_color {
         ChessPieceColor::White => chessboard.player1.king_position,
@@ -171,13 +175,17 @@ pub fn is_checkmate(
     // Iteramos cada uno de los movimientos del rey
     for move_position in king_moves {
         // Validamos si el rey puede moverse a una posición segura
-        if !attack_route.contains(&move_position) && (move_position != attacker_position) {
+        if attack_route.contains(&move_position) {
             continue;
         }
 
         // Creamos una instancia temporal de chessboard, para analizar si el rey sigue en jaque después del movimiento
-        let temp_chessboard =
-            new_chessboard_instance_after_move(chessboard, &attacking_piece, move_position);
+        let temp_chessboard = new_chessboard_instance_after_move(
+            chessboard,
+            &attacking_piece,
+            move_position,
+            _is_computer,
+        );
 
         if is_check(&temp_chessboard, player_color).is_none() {
             return false;
@@ -212,6 +220,7 @@ pub fn is_checkmate(
                         chessboard,
                         &from_piece,
                         attacker_position,
+                        _is_computer,
                     );
 
                     // Si no hay jaque después de capturar la pieza atacante, retornamos false
@@ -235,6 +244,7 @@ pub fn is_checkmate(
                             chessboard,
                             &from_piece,
                             *move_position,
+                            _is_computer,
                         );
 
                         // Si no hay jaque después de interponerse, retornamos false
@@ -339,7 +349,8 @@ fn castling_validate(chessboard: &Chessboard, to: [usize; 2]) -> Result<Chessboa
     }
 
     // Creamos una instancia temporal de chessboard y movemos el rey
-    let mut temp_chessboard = new_chessboard_instance_after_move(chessboard, &king_piece, to);
+    let mut temp_chessboard =
+        new_chessboard_instance_after_move(chessboard, &king_piece, to, false);
 
     // Obtenemos la posición final de la torre después del enroque
     let rook_position_to = match chessboard.player_turn {
@@ -364,6 +375,7 @@ fn castling_validate(chessboard: &Chessboard, to: [usize; 2]) -> Result<Chessboa
         &temp_chessboard,
         &chessboard.board[rook_position[0]][rook_position[1]].unwrap(),
         rook_position_to,
+        false,
     );
 
     // Cambiamos de turno

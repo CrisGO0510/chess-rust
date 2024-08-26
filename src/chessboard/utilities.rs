@@ -1,6 +1,6 @@
 use std::process::Command;
 
-use crate::pieces::piece_type::{ChessPiece, ChessPieceColor, ChessPieceType};
+use crate::pieces::piece_type::{ChessPiece, ChessPieceColor, ChessPieceType, Message};
 
 use super::chessboard::Chessboard;
 
@@ -63,6 +63,7 @@ pub fn new_chessboard_instance_after_move(
     chessboard: &Chessboard,
     from_piece: &ChessPiece,
     to: [usize; 2],
+    _is_computer: bool,
 ) -> Chessboard {
     // Clonamos el tablero y la pieza para trabajar con copias temporales
     let mut temp_chessboard = chessboard.clone();
@@ -85,7 +86,23 @@ pub fn new_chessboard_instance_after_move(
 
     // Si la pieza es un peón, verificamos si se puede promocionar
     if temp_piece.piece == ChessPieceType::Pawn {
-        temp_piece = pawn_promotion(temp_piece);
+        // Validamos si es la computadora quien mueve
+        if _is_computer {
+            match temp_piece.color {
+                ChessPieceColor::White => {
+                    if temp_piece.position[0] == 0 {
+                        temp_piece.piece = ChessPieceType::Queen;
+                    }
+                }
+                ChessPieceColor::Black => {
+                    if temp_piece.position[0] == 7 {
+                        temp_piece.piece = ChessPieceType::Queen;
+                    }
+                }
+            }
+        } else {
+            temp_piece = pawn_promotion(temp_piece);
+        }
     }
 
     // Actualizamos el tablero: movemos la pieza y vaciamos su posición anterior
@@ -155,8 +172,56 @@ fn pawn_promotion(pawn_piece: ChessPiece) -> ChessPiece {
                 temp_pawn_piece.piece = piece_type;
             }
         }
-
     }
-    
+
     temp_pawn_piece
+}
+
+pub fn calculate_score(chessboard: &Chessboard) -> i32 {
+    let mut white_score = 0;
+    let mut black_score = 0;
+
+    for row in chessboard.board.iter() {
+        for cell in row.iter() {
+            if let Some(piece) = cell {
+                let piece_value = match piece.piece {
+                    ChessPieceType::Pawn => 1,
+                    ChessPieceType::Bishop => 3,
+                    ChessPieceType::Knight => 3,
+                    ChessPieceType::Rook => 5,
+                    ChessPieceType::Queen => 9,
+                    _ => 0, // El rey no se cuenta en la puntuación
+                };
+
+                match piece.color {
+                    ChessPieceColor::White => white_score += piece_value,
+                    ChessPieceColor::Black => black_score += piece_value,
+                }
+            }
+        }
+    }
+
+    white_score - black_score
+}
+
+pub fn get_all_pieces(chessboard: &Chessboard, color: ChessPieceColor) -> Vec<ChessPiece> {
+    let mut pieces: Vec<ChessPiece> = Vec::new();
+
+    for i in 0..8 {
+        for j in 0..8 {
+            if let Some(piece) = chessboard.board[i][j] {
+                if piece.color == color {
+                    pieces.push(piece.clone());
+                }
+            }
+        }
+    }
+
+    pieces
+}
+
+
+// Función auxiliar para validar movimientos
+pub fn is_valid_move(message: &Message) -> bool {
+    *message == Message::Success || *message == Message::Check || *message == Message::CheckMate
 }

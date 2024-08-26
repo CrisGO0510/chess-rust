@@ -3,11 +3,12 @@ use crate::pieces::routes_moves::{
     queen_route_moves, rook_route_moves,
 };
 
-use super::piece_type::{ChessPiece, ChessPieceType};
+use super::{allowed_moves::{bishop_allowed_moves, king_allowed_moves, knight_allowed_moves, pawn_all_allowed_move, queen_allowed_moves, rook_allowed_moves}, piece_type::{ChessPiece, ChessPieceType}};
 
 pub trait PieceActions {
     fn move_piece(&self, new_position: [usize; 2]) -> Vec<[usize; 2]>;
     fn capture_piece(&self, new_position: [usize; 2]) -> Vec<[usize; 2]>;
+    fn allowed_moves(&self) -> Vec<[usize; 2]>;
 }
 
 trait KingActions {
@@ -120,6 +121,18 @@ impl PieceActions for ChessPiece {
             ChessPieceType::Queen => self.queen_capture(new_position),
             ChessPieceType::Knight => self.knight_capture(new_position),
             ChessPieceType::Pawn => self.pawn_capture(new_position),
+        }
+    }
+
+    fn allowed_moves(&self) -> Vec<[usize; 2]> {
+        match self.piece {
+            ChessPieceType::King => king_allowed_moves(self.position),
+            ChessPieceType::Rook => rook_allowed_moves(self.position),
+            ChessPieceType::Bishop => bishop_allowed_moves(self.position),
+            ChessPieceType::Queen => queen_allowed_moves(self.position),
+            ChessPieceType::Knight => knight_allowed_moves(self.position),
+            ChessPieceType::Pawn => pawn_all_allowed_move(self.position, self.color),
+            
         }
     }
 }
