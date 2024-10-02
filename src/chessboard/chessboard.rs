@@ -82,7 +82,7 @@ impl Chessboard {
             }
         };
 
-        // clear_console();
+        clear_console();
 
         let mut row_index = 8;
         println!("      a   b   c   d   e   f   g   h");
